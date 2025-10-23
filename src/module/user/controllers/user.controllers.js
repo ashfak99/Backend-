@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import {ApiResponse} from "../../../utils/ApiResponse.js";
 import {uploadonClodinary} from "../../../utils/uploadOnClodinary.js"
 import { secureHeapUsed } from "crypto";
+import {sendEmail} from "../../../utils/mailer.js"
 
 const generateAccessAndRefreshToken = async (userId)=>{
     const user = await User.findById(userId);
@@ -142,9 +143,61 @@ const deleteUser = asyncHandler(async(req , res)=>{
 })
 
 
+const forgetPassword = asyncHandler(async (req,res)=>{
+    const {email}=req.body;
+
+    if(!email){
+        throw new ApiError(400,"Email is required")
+    }
+
+    const user = await User.findOne({email});
+
+    if (!user) {
+        throw new ApiError(404,"User doesn't exits")
+    }
+
+    const resetToken = user.generateResetToken();
+
+    try {
+        await user.save({validateBeforeSave : false})
+
+    } catch (error) {
+        console.log("Error while generating Reset Token",error);
+    }
+
+    const resetPasswordUrl = `${req.protocol}://${req.get("host")}/api/v1/password/reset/${resetToken}`;
+
+    const message = `Your password reset token is:\n\n${resetPasswordUrl}\n\nIf you have not requested this email then, please ignore it.`;
+
+    try {
+        const option = {
+            email : user.email,
+            subject : `Password recovery link`,
+            message 
+        }
+
+        await sendEmail(option)
+
+        res.json(
+            new ApiResponse(200,{},"Email send Successfully")
+        )
+    } catch (error) {
+        console.log("Error while sending Reset Password Token",error)
+
+        user.resetPasswordToken = undefined
+        user.resetPassTokenExpires = undefined
+        await user.save({validateBeforeSave : false})
+
+        throw new ApiError(500,"Something went wrong while send Email")
+    }
+
+})
 
 export {
     createUser, 
     loginUser,
-    logoutUser
+    logoutUser,
+    getUserById,
+    deleteUser,
+    forgetPassword
 };
