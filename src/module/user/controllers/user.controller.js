@@ -193,11 +193,21 @@ const forgetPassword = asyncHandler(async (req,res)=>{
 
 })
 
+//For Chatting App Only
+const getOtherUser = asyncHandler(async (req , res)=>{
+    const loggedInUser = req.user._id;
+    const otherUser = await User.find({_id : {$ne : loggedInUser}}).select("-password");
+    return res.json(
+        new ApiResponse(200,otherUser,"Friends fetch SuccessFully")
+    )
+})
+
 export {
     createUser, 
     loginUser,
     logoutUser,
     getUserById,
     deleteUser,
-    forgetPassword
+    forgetPassword,
+    getOtherUser
 };
