@@ -24,4 +24,15 @@ const sendEmail = async(options)=>{
 
       console.log(`Mail send Successfully to ${options.email}`)
     }
-export {sendEmail};
+
+const welcomeEMail = async (useremail)=>{
+    await transport.sendMail({
+        from : `Developer Alam <${process.env.EmailId}>`,
+        to : useremail,
+        subject : `Welcome Mail`,
+        text : `Hi,\n\nWelcome to our service! We are excited to have you on board.\n\nBest regards,\nThe Developer Alam Team`
+})
+}
+export {sendEmail,
+    welcomeEMail
+};

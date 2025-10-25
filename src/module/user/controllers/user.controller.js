@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import {ApiResponse} from "../../../utils/ApiResponse.js";
 import {uploadonClodinary} from "../../../utils/uploadOnClodinary.js"
 import { secureHeapUsed } from "crypto";
-import {sendEmail} from "../../../utils/mailer.js"
+import {sendEmail, welcomeEMail} from "../../../utils/mailer.js"
 
 const generateAccessAndRefreshToken = async (userId)=>{
     const user = await User.findById(userId);
@@ -81,7 +81,7 @@ const loginUser = asyncHandler(async (req , res)=>{
     const {accessToken,refreshToken}=await generateAccessAndRefreshToken(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password")
-
+    welcomeEMail(loggedInUser.email);
     const options = {
         httpOnly : true,
         secure : true

@@ -24,6 +24,6 @@ export const verifyJWT = asyncHandler(async (req , _ , next)=>{
         req.user=user;
         next();
     } catch (error) {
-            throw new ApiError(402,"You are not authorized to access this routes")
+            throw new ApiError(401,"You are not authorized to access this routes")
     }
 })
