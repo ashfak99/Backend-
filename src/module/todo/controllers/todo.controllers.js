@@ -20,4 +20,27 @@ const createTodo = asyncHandler(async (req , res )=>{
     )
 })
 
-export {createTodo};
+const deleteTodo = asyncHandler(async(req , res)=>{
+    const userId= req.user._id;
+    const todoId=req.params._id;
+
+    const todoItem=await Todo.findOne({_id:todoId});
+
+    if (!todoItem) {
+        throw new ApiError(404,"Todo not exits");
+    }
+
+    if (todoItem.userId.toString()!==userId.toString()) {
+        throw new ApiError(400,"You are not authorized to access this")
+    }
+    await Todo.findByIdAndDelete(todoId);
+
+    return res.json(
+        new ApiResponse(200,{},"Todo Delete Successfully")
+    )
+})
+
+export {
+    createTodo,
+    deleteTodo
+};
