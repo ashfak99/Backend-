@@ -72,7 +72,42 @@ const unfollow = asyncHandler(async(req , res)=>{
     )
 })
 
+const getFollowing = asyncHandler(async (req,res)=>{
+    const userId = req.user._id;
+    const followingRelation = await FollowRelation.find({userId : userId})
+    .select("-_id -createdAt -updatedAt")
+    .populate({
+        path : "followedUserId",
+        select : "username fullName avatar"
+    })
+
+    const followingList = followingRelation.map(followingRelation=>followingRelation.followedUserId)
+
+    res.status(200).json(
+        new ApiResponse(200,followingList,"Following list fetch successfully")
+    )
+})
+
+const getFollower = asyncHandler(async(req,res)=>{
+    const userId = req.user._id;
+
+    const followingRelation = await FollowRelation.find({followedUserId : userId})
+    .select("userId -_id -createdAt -updatedAt")
+    .populate({
+        path : "userId",
+        select : "username fullName avatar"
+    })
+
+    const followerList = followingRelation.map(followingRelation=>followingRelation.userId)
+
+    res.json(
+        new ApiResponse(200,followerList,"Follower list fetch successfully")
+    )
+})
+
 export {
     follow,
-    unfollow
+    unfollow,
+    getFollowing,
+    getFollower
 }
