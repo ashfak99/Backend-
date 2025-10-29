@@ -16,13 +16,26 @@ const productSchema = new Schema(
             type : string,
             trim : true
         },
-        cover : {
-            type : String,
-            required : true
-        },
+        cover : [
+            {
+                url : {
+                    type : String,
+                    required : true
+                },
+                publicId : {
+                    type : String,
+                    required : true
+                }
+            }
+        ],
         categori_id : {
             type : Schema.Types.ObjectId,
             ref : "SubCategories"
+        },
+        owner : {
+            type : Schema.Types.ObjectId,
+            ref : "User",
+            required : true
         }
     },
     {
